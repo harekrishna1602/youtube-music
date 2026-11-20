@@ -2,12 +2,14 @@ package com.ytmbg.player
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
@@ -16,8 +18,12 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebViewCompat
@@ -27,9 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val YTM_HOME_URL = "https://music.youtube.com"
-        // Desktop Chrome UA bypasses the mobile "Get the YouTube Music App" wall and allows Google Sign-In
-        private const val DESKTOP_CHROME_UA =
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+        private const val STUDIO_MOGLI_URL = "https://studiomogli.com"
 
         private val DOCUMENT_START_ORIGINS = setOf(
             "https://music.youtube.com",
@@ -37,12 +41,15 @@ class MainActivity : AppCompatActivity() {
             "https://m.youtube.com"
         )
 
+        private val AUTH_HOSTS = listOf(
+            "accounts.google.com",
+            "accounts.youtube.com",
+            "myaccount.google.com"
+        )
+
         private val ALLOWED_HOST_SUFFIXES = listOf(
             "music.youtube.com",
             "youtube.com",
-            "accounts.google.com",
-            "accounts.youtube.com",
-            "myaccount.google.com",
             "consent.google.com",
             "consent.youtube.com",
             "gds.google.com",
@@ -59,6 +66,15 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()
     ) { /* Service runs regardless; permission enables lock-screen controls on Android 13+ */ }
 
+    private val loginLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        CookieManager.getInstance().flush()
+        if (result.resultCode == Activity.RESULT_OK && ::webView.isInitialized) {
+            webView.loadUrl(YTM_HOME_URL)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -66,6 +82,7 @@ class MainActivity : AppCompatActivity() {
         requestNotificationPermissionIfNeeded()
 
         webView = findViewById(R.id.ytmWebView)
+        setupTopBar()
         configureWebView()
         registerBridgeHandlers()
         registerBackNavigation()
@@ -73,6 +90,75 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             webView.loadUrl(YTM_HOME_URL)
         }
+    }
+
+    private fun setupTopBar() {
+        val btnSignIn: TextView = findViewById(R.id.btnTopSignIn)
+        val btnCredits: TextView = findViewById(R.id.btnStudioMogliCredits)
+        val brandTitle: TextView = findViewById(R.id.txtBrandHeader)
+
+        btnSignIn.setOnClickListener {
+            launchIsolatedGoogleSignIn(LoginActivity.DEFAULT_GOOGLE_LOGIN_URL)
+        }
+
+        btnCredits.setOnClickListener {
+            showStudioMogliCreditsDialog()
+        }
+
+        brandTitle.setOnClickListener {
+            showStudioMogliCreditsDialog()
+        }
+    }
+
+    private fun launchIsolatedGoogleSignIn(authUrl: String) {
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            putExtra(LoginActivity.EXTRA_AUTH_URL, authUrl)
+        }
+        loginLauncher.launch(intent)
+    }
+
+    private fun showStudioMogliCreditsDialog() {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_studio_mogli, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val btnVisitSite: Button = dialogView.findViewById(R.id.btnVisitStudioMogli)
+        val btnSupportTeam: Button = dialogView.findViewById(R.id.btnSupportDevTeam)
+        val btnClose: TextView = dialogView.findViewById(R.id.btnCloseCredits)
+
+        btnVisitSite.setOnClickListener {
+            openExternalBrowser(STUDIO_MOGLI_URL)
+            dialog.dismiss()
+        }
+
+        btnSupportTeam.setOnClickListener {
+            openExternalBrowser(STUDIO_MOGLI_URL)
+            dialog.dismiss()
+        }
+
+        btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun openExternalBrowser(url: String) {
+        try {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(browserIntent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Visit studiomogli.com", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun buildMatchingDesktopChromeUa(): String {
+        val defaultUa = WebSettings.getDefaultUserAgent(this)
+        val chromeMatch = Regex("Chrome/[0-9.]+").find(defaultUa)?.value ?: "Chrome/134.0.0.0"
+        return "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) $chromeMatch Safari/537.36"
     }
 
     private fun requestNotificationPermissionIfNeeded() {
@@ -105,10 +191,10 @@ class MainActivity : AppCompatActivity() {
             displayZoomControls = false
             setSupportMultipleWindows(false)
             mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
-            userAgentString = DESKTOP_CHROME_UA
+            userAgentString = buildMatchingDesktopChromeUa()
         }
 
-        // Layer 2: Register document_start script BEFORE loading any YouTube Music page
+        // Layer 2: Register document_start script ONLY on YouTube origins (never on accounts.google.com)
         if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
             WebViewCompat.addDocumentStartJavaScript(
                 webView,
@@ -139,18 +225,26 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
-                // Fallback injection for older WebViews without DOCUMENT_START_SCRIPT
-                view?.evaluateJavascript(JsScripts.DOCUMENT_START_SCRIPT, null)
-                view?.evaluateJavascript(JsScripts.RUNTIME_AND_COSMETIC_SCRIPT, null)
+                if (isYouTubeHost(url)) {
+                    view?.evaluateJavascript(JsScripts.DOCUMENT_START_SCRIPT, null)
+                    view?.evaluateJavascript(JsScripts.RUNTIME_AND_COSMETIC_SCRIPT, null)
+                }
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                // Layer 3: Cosmetic hiding, fallback auto-skip, anti-idle, and media bridge
-                view?.evaluateJavascript(JsScripts.RUNTIME_AND_COSMETIC_SCRIPT, null)
+                if (isYouTubeHost(url)) {
+                    view?.evaluateJavascript(JsScripts.RUNTIME_AND_COSMETIC_SCRIPT, null)
+                }
                 CookieManager.getInstance().flush()
             }
         }
+    }
+
+    private fun isYouTubeHost(url: String?): Boolean {
+        if (url.isNullOrBlank()) return false
+        val host = Uri.parse(url).host?.lowercase() ?: return false
+        return host == "music.youtube.com" || host == "youtube.com" || host.endsWith(".youtube.com")
     }
 
     private fun handleNavigation(uri: Uri): Boolean {
@@ -160,6 +254,13 @@ class MainActivity : AppCompatActivity() {
             return true
         }
         val host = uri.host?.lowercase() ?: return true
+
+        // Route all Google Sign-In flows into the clean, isolated LoginActivity
+        if (AUTH_HOSTS.any { host == it || host.endsWith(".$it") }) {
+            launchIsolatedGoogleSignIn(uri.toString())
+            return true
+        }
+
         val isAllowed = ALLOWED_HOST_SUFFIXES.any { suffix ->
             host == suffix || host.endsWith(".$suffix")
         }

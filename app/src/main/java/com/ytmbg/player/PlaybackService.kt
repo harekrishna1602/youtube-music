@@ -41,7 +41,7 @@ class PlaybackService : Service() {
 
     private var isPlaying: Boolean = false
     private var currentTitle: String = "YouTube Music"
-    private var currentArtist: String = "Background playback ready"
+    private var currentArtist: String = "Studio Mogli Audio Engine"
 
     override fun onCreate() {
         super.onCreate()
@@ -57,7 +57,7 @@ class PlaybackService : Service() {
             "YouTube Music Background Playback",
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Keeps YouTube Music audio active when the screen is off"
+            description = "Keeps YouTube Music audio active when the screen is off — Built by Studio Mogli (studiomogli.com)"
             setShowBadge(false)
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }

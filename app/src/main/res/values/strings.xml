@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">YT Music BG</string>
+    <string name="top_bar_brand">YT MUSIC BG  •  STUDIO MOGLI</string>
+    <string name="btn_sign_in">Sign In</string>
+    <string name="btn_credits">Studio Mogli</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_done">Done</string>
+    <string name="btn_close">Close</string>
+    <string name="login_screen_title">Google Sign-In</string>
+    <string name="credit_badge">STUDIO MOGLI LABS</string>
+    <string name="credit_title">YT Music BG v1.2.0</string>
+    <string name="credit_subtitle">Engineered by Studio Mogli  •  studiomogli.com</string>
+    <string name="credit_body">Built with a custom screen-off Android foreground audio engine, 3-layer ad blocker, and isolated Google Sign-In architecture.</string>
+    <string name="credit_team_line">Development &amp; Support Team: Studio Mogli (studiomogli.com)</string>
+    <string name="btn_support_dev">Support Developer Team</string>
+    <string name="btn_visit_site">Visit studiomogli.com</string>
 </resources>

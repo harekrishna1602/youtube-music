@@ -1,22 +1,19 @@
-# YT Music BG v1.1.0 (Screen-Off Playback + 3-Layer Ad Blocker)
+# YT Music BG v1.2.0 — Built by Studio Mogli
 
-A dedicated Android wrapper app locked exclusively to **YouTube Music (`music.youtube.com`)** that keeps audio playing when the screen is off and strips/skips audio and visual ads automatically.
+Developed and maintained by **Studio Mogli** ([studiomogli.com](https://studiomogli.com)).
 
-## Features
-- **Background & Screen-Off Playback:** `BackgroundWebView` + Android Foreground Service (`mediaPlayback`) + `PARTIAL_WAKE_LOCK` + `MediaSessionCompat` lock-screen and Bluetooth controls.
-- **Layer 1 Ad Blocker (`AdBlocker.kt`):** Intercepts and drops ad servers and ad-tracking beacons inside `WebViewClient.shouldInterceptRequest` while keeping `googlevideo.com`, `/youtubei/v1/player`, and Google Sign-In intact.
-- **Layer 2 Ad Blocker (`JsScripts.DOCUMENT_START_SCRIPT`):** Registered via `WebViewCompat.addDocumentStartJavaScript` before page initialization to prune `adPlacements`, `playerAds`, `adSlots`, and `adBreakHeartbeatParams` from `window.ytInitialPlayerResponse`, `fetch()`, and `XMLHttpRequest`.
-- **Layer 3 Ad Blocker (`JsScripts.RUNTIME_AND_COSMETIC_SCRIPT`):** Hides Premium popups and ad overlays via CSS, runs a `MutationObserver` fallback that mutes, seeks past, and clicks skip on any ad that slips through, and prevents ad titles from flashing on the lock screen.
+A dedicated Android wrapper app locked exclusively to **YouTube Music (`music.youtube.com`)** featuring screen-off background playback, a 3-layer ad blocker, isolated Google Sign-In, and Studio Mogli developer credits.
+
+## What's New in v1.2.0
+- **Isolated Google Sign-In (`LoginActivity.kt`):** Routes `accounts.google.com` into a completely clean WebView with zero injected JS, zero `JavascriptInterface`, zero ad-blocker hooks, and the device's real Android Chrome User-Agent (stripped of `; wv` and `Version/4.0`) to resolve Google's *"This browser or app may not be secure"* error.
+- **Dynamic Engine-Matched Desktop UA:** Builds the YouTube Music player User-Agent dynamically from the phone's actual Chromium WebView version instead of a hardcoded outdated Chrome string.
+- **Studio Mogli Developer Credits & Support:** Adds a slim charcoal/orange top strip (`YT MUSIC BG • STUDIO MOGLI`) with quick **Sign In** and **Studio Mogli** buttons opening a native credits & developer support dialog linked to `https://studiomogli.com`.
 
 ---
 
-## Build the Installable APK via GitHub Actions (No Android Studio Needed)
+## Build the Installable APK via GitHub Actions
 
-1. Unzip `YTMusicBG-Android-v2.zip`.
-2. Push all files (including `.github/workflows/build-apk.yml`) to a GitHub repository's `main` branch.
-3. Open the **Actions** tab and wait ~2-3 minutes for **Build Android APK** to finish.
-4. Download the **YTMusicBG-v1.1.0-debug-apk** artifact, unzip it to get `app-debug.apk`, and install it on your Android phone.
-
-## First-Time Phone Setup
-1. **Allow Notifications** when prompted so Android 13+ displays lock-screen controls.
-2. Go to **Settings > Apps > YT Music BG > Battery** and set it to **Unrestricted**.
+1. Unzip `YTMusicBG-Android-v3.zip`.
+2. Update your GitHub repository's `main` branch with the new files (remember `.github/workflows/build-apk.yml` if uploading via browser).
+3. Wait ~2–3 minutes in the **Actions** tab and download **YTMusicBG-v1.2.0-debug-apk**.
+4. Extract `app-debug.apk` and install it on your phone.

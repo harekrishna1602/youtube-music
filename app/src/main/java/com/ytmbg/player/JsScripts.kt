@@ -3,7 +3,7 @@ package com.ytmbg.player
 object JsScripts {
 
     /**
-     * Injected at document_start via WebViewCompat.addDocumentStartJavaScript BEFORE
+     * Injected at document_start ONLY on music.youtube.com / youtube.com BEFORE
      * YouTube Music's own scripts initialize:
      *  - Page Visibility API spoof (keeps screen-off playback alive from frame 0)
      *  - Layer 2 Ad Blocker: Prunes adPlacements, playerAds, and adSlots from
@@ -11,6 +11,8 @@ object JsScripts {
      */
     val DOCUMENT_START_SCRIPT: String = """
         (function() {
+            var host = (location && location.hostname ? location.hostname : '').toLowerCase();
+            if (host.indexOf('youtube.com') === -1) return;
             if (window.__ytmBgDocStartInstalled) return;
             window.__ytmBgDocStartInstalled = true;
 
@@ -178,7 +180,7 @@ object JsScripts {
     """.trimIndent()
 
     /**
-     * Injected on page load (onPageStarted / onPageFinished):
+     * Injected on page load ONLY on music.youtube.com / youtube.com:
      *  - Layer 3 Ad Blocker: Cosmetic CSS hiding + MutationObserver auto-mute/skip fallback
      *  - Anti-idle ("Still listening?") auto-dismissal
      *  - Lock-screen / Bluetooth remote control bridge
@@ -186,6 +188,8 @@ object JsScripts {
      */
     val RUNTIME_AND_COSMETIC_SCRIPT: String = """
         (function() {
+            var host = (location && location.hostname ? location.hostname : '').toLowerCase();
+            if (host.indexOf('youtube.com') === -1) return;
             if (window.__ytmBgRuntimeInstalled) return;
             window.__ytmBgRuntimeInstalled = true;
 

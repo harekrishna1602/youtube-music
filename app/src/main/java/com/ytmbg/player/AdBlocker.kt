@@ -15,7 +15,9 @@ object AdBlocker {
         "googlevideo.com",
         "accounts.google.com",
         "accounts.youtube.com",
-        "myaccount.google.com"
+        "myaccount.google.com",
+        "gds.google.com",
+        "ssl.gstatic.com"
     )
 
     private val BLOCKED_HOST_SUFFIXES = listOf(
