@@ -1,17 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">YT Music BG</string>
-    <string name="top_bar_brand">YT Music BG</string>
+    <string name="app_name">YT Music</string>
+    <string name="top_bar_brand">YT Music</string>
     <string name="btn_credits">Studio Mogli</string>
+    <string name="btn_update">Update</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_done">Done</string>
     <string name="btn_close">Close</string>
     <string name="login_screen_title">Google Sign-In</string>
+
+    <!-- Studio Mogli Credits Card -->
     <string name="credit_badge">MADE BY STUDIO MOGLI</string>
-    <string name="credit_title">YT Music BG v1.4.0</string>
+    <string name="credit_title">YT Music v1.5.0</string>
     <string name="credit_subtitle">✓ Verified Clean  •  100% Malware-Free</string>
     <string name="credit_body">Built for privacy and trust. Zero trackers, zero hidden permissions, and zero data collection. Your Google account stays strictly between your device and Google.</string>
     <string name="credit_team_line">Know someone who needs a website or custom software? Earn 10% on every closed project.</string>
     <string name="btn_refer_earn">Refer &amp; Earn 10%</string>
+    <string name="btn_trust_guarantee">Privacy &amp; Security Guarantee</string>
     <string name="btn_visit_site">Visit studiomogli.com</string>
+
+    <!-- First-Time / Post-Update Trust & Privacy Flash Card -->
+    <string name="trust_badge">100% MALWARE-FREE  •  VERIFIED</string>
+    <string name="trust_title">Welcome to YT Music</string>
+    <string name="trust_intro">Enjoy YouTube Music completely ad-free with background and screen-off playback—crafted by Studio Mogli.</string>
+    <string name="trust_point_1_title">1. Your Google Account Stays Strictly Private</string>
+    <string name="trust_point_1_body">Sign-in happens directly on Google\'s official login page inside an isolated window. Studio Mogli never sees, touches, or stores your email or password.</string>
+    <string name="trust_point_2_title">2. Why We Technically Cannot Collect Your Data</string>
+    <string name="trust_point_2_body">This app has zero backend servers, zero analytics SDKs, and zero ad trackers. It only requests Internet and Notification permissions needed to play audio—no contacts, storage, camera, or location access.</string>
+    <string name="trust_point_3_title">3. Background &amp; Screen-Off Playback</string>
+    <string name="trust_point_3_body">Press the power button or switch apps anytime and your music keeps playing uninterrupted. (Tip: Set Battery to Unrestricted in App Info for best results.)</string>
+    <string name="btn_trust_got_it">Got It — Start Listening</string>
 </resources>

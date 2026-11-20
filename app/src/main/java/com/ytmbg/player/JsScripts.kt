@@ -347,7 +347,7 @@ object JsScripts {
                         if (bylineEl) artist = (bylineEl.textContent || '').trim();
                     }
 
-                    if (!title) title = 'YouTube Music';
+                    if (!title) title = 'YT Music';
                     if (!artist) artist = isPlaying ? 'Playing in background' : 'Paused';
 
                     var signature = isPlaying + '|' + title + '|' + artist;

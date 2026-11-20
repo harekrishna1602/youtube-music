@@ -34,6 +34,22 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
+        <!-- Hidden by default; appears automatically only when a newer GitHub Release exists -->
+        <TextView
+            android:id="@+id/btnUpdateApp"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_chip_green"
+            android:gravity="center"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="@string/btn_update"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/btnStudioMogliCredits"
             android:layout_width="wrap_content"

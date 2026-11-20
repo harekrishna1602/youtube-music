@@ -40,7 +40,7 @@ class PlaybackService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
 
     private var isPlaying: Boolean = false
-    private var currentTitle: String = "YouTube Music"
+    private var currentTitle: String = "YT Music"
     private var currentArtist: String = "Studio Mogli Audio"
 
     override fun onCreate() {
@@ -54,10 +54,10 @@ class PlaybackService : Service() {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "YouTube Music Background Playback",
+            "YT Music Background Playback",
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Keeps YouTube Music audio active when the screen is off — Made by Studio Mogli (studiomogli.com)"
+            description = "Keeps YT Music audio active when the screen is off — Made by Studio Mogli (studiomogli.com)"
             setShowBadge(false)
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
@@ -68,14 +68,14 @@ class PlaybackService : Service() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
-            "YTMusicBG::AudioWakeLock"
+            "YTMusic::AudioWakeLock"
         ).apply {
             setReferenceCounted(false)
         }
     }
 
     private fun initMediaSession() {
-        mediaSession = MediaSessionCompat(this, "YTMusicBGSession").apply {
+        mediaSession = MediaSessionCompat(this, "YTMusicSession").apply {
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPlay() {
                     WebViewBridge.sendControl("play")
