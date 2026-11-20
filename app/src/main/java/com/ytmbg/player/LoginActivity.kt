@@ -60,7 +60,7 @@ class LoginActivity : AppCompatActivity() {
         val cleanMobileChromeUa = realDefaultUa
             .replace("; wv", "")
             .replace(Regex("Version/\\d+\\.\\d+\\s*"), "")
-            .replace(Regex("\s+"), " ")
+            .replace(Regex("\\s+"), " ")
             .trim()
 
         loginWebView.settings.apply {
