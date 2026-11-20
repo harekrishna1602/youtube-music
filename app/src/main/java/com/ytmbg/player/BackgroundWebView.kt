@@ -15,7 +15,6 @@ class BackgroundWebView @JvmOverloads constructor(
 
     override fun onWindowVisibilityChanged(visibility: Int) {
         if (allowBackgroundPlayback && visibility != View.VISIBLE) {
-            // Keep WebView media engine active when screen turns off or app moves to background
             super.onWindowVisibilityChanged(View.VISIBLE)
         } else {
             super.onWindowVisibilityChanged(visibility)

@@ -33,7 +33,7 @@ class PlaybackService : Service() {
         const val EXTRA_TITLE = "extra_title"
         const val EXTRA_ARTIST = "extra_artist"
 
-        private const val WAKE_LOCK_TIMEOUT_MS = 4 * 60 * 60 * 1000L // 4 hours max per refresh
+        private const val WAKE_LOCK_TIMEOUT_MS = 4 * 60 * 60 * 1000L
     }
 
     private lateinit var mediaSession: MediaSessionCompat
@@ -41,7 +41,7 @@ class PlaybackService : Service() {
 
     private var isPlaying: Boolean = false
     private var currentTitle: String = "YouTube Music"
-    private var currentArtist: String = "Studio Mogli Audio Engine"
+    private var currentArtist: String = "Studio Mogli Audio"
 
     override fun onCreate() {
         super.onCreate()
@@ -57,7 +57,7 @@ class PlaybackService : Service() {
             "YouTube Music Background Playback",
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Keeps YouTube Music audio active when the screen is off — Built by Studio Mogli (studiomogli.com)"
+            description = "Keeps YouTube Music audio active when the screen is off — Made by Studio Mogli (studiomogli.com)"
             setShowBadge(false)
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }

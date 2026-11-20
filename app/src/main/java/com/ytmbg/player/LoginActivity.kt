@@ -13,13 +13,6 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 
-/**
- * Isolated Google Sign-In WebView.
- * Runs completely clean (no injected JS, no JavascriptInterface, no AdBlocker) using the device's
- * real Android Chrome user-agent (minus "; wv" and "Version/4.0") so Google's sign-in security
- * check does not see a spoofed desktop OS or tampered JS prototypes.
- * Shares CookieManager with MainActivity automatically.
- */
 class LoginActivity : AppCompatActivity() {
 
     companion object {
@@ -55,7 +48,6 @@ class LoginActivity : AppCompatActivity() {
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(loginWebView, true)
 
-        // Build clean Mobile Chrome UA directly from this device's real Chromium WebView version
         val realDefaultUa = WebSettings.getDefaultUserAgent(this)
         val cleanMobileChromeUa = realDefaultUa
             .replace("; wv", "")

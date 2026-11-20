@@ -4,11 +4,6 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import java.io.ByteArrayInputStream
 
-/**
- * Layer 1 Ad Blocker: Network-level request interception inside WebViewClient.shouldInterceptRequest.
- * Drops known ad servers and ad-tracking endpoints before they download, while never blocking
- * googlevideo.com media streams, Google Sign-In, or core /youtubei/v1/player requests.
- */
 object AdBlocker {
 
     private val SAFE_HOST_SUFFIXES = listOf(
@@ -47,17 +42,14 @@ object AdBlocker {
         val uri = request?.url ?: return false
         val host = uri.host?.lowercase() ?: return false
 
-        // Never block audio/video media CDN or Google Sign-In domains
         if (SAFE_HOST_SUFFIXES.any { host == it || host.endsWith(".$it") }) {
             return false
         }
 
-        // Block dedicated ad/analytics hosts
         if (BLOCKED_HOST_SUFFIXES.any { host == it || host.endsWith(".$it") }) {
             return true
         }
 
-        // Never block main player/next API endpoints (handled by Layer 2 JSON pruning instead)
         val fullUrl = uri.toString().lowercase()
         if (fullUrl.contains("/youtubei/v1/player") || fullUrl.contains("/youtubei/v1/next")) {
             return false

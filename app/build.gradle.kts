@@ -1,3 +1,5 @@
+import java.io.File
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -11,13 +13,36 @@ android {
         applicationId = "com.ytmbg.player"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 5
+        versionName = "1.4.0"
+    }
+
+    signingConfigs {
+        val keystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
+        val keystorePasswordEnv = System.getenv("KEYSTORE_PASSWORD")
+        val keyAliasEnv = System.getenv("KEY_ALIAS")
+        val keyPasswordEnv = System.getenv("KEY_PASSWORD")
+
+        if (!keystorePath.isNullOrBlank() &&
+            File(keystorePath).exists() &&
+            !keystorePasswordEnv.isNullOrBlank() &&
+            !keyAliasEnv.isNullOrBlank() &&
+            !keyPasswordEnv.isNullOrBlank()
+        ) {
+            create("release") {
+                storeFile = File(keystorePath)
+                storePassword = keystorePasswordEnv
+                keyAlias = keyAliasEnv
+                keyPassword = keyPasswordEnv
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            isDebuggable = false
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

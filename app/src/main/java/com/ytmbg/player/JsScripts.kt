@@ -2,13 +2,6 @@ package com.ytmbg.player
 
 object JsScripts {
 
-    /**
-     * Injected at document_start ONLY on music.youtube.com / youtube.com BEFORE
-     * YouTube Music's own scripts initialize:
-     *  - Page Visibility API spoof (keeps screen-off playback alive from frame 0)
-     *  - Layer 2 Ad Blocker: Prunes adPlacements, playerAds, and adSlots from
-     *    window.ytInitialPlayerResponse, fetch(), and XMLHttpRequest responses.
-     */
     val DOCUMENT_START_SCRIPT: String = """
         (function() {
             var host = (location && location.hostname ? location.hostname : '').toLowerCase();
@@ -16,7 +9,6 @@ object JsScripts {
             if (window.__ytmBgDocStartInstalled) return;
             window.__ytmBgDocStartInstalled = true;
 
-            // --- 1. Page Visibility API Spoof (Screen-off playback) ---
             try {
                 Object.defineProperty(document, 'hidden', {
                     get: function() { return false; },
@@ -46,7 +38,6 @@ object JsScripts {
                 }, true);
             });
 
-            // --- 2. Layer 2 Ad Blocker: JSON Response Pruning ---
             var AD_KEYS = [
                 'adPlacements',
                 'playerAds',
@@ -82,7 +73,6 @@ object JsScripts {
                        url.indexOf('/youtubei/v1/next') !== -1;
             }
 
-            // 2a. Intercept window.ytInitialPlayerResponse on initial page load
             try {
                 var initialPlayerResp = window.ytInitialPlayerResponse
                     ? stripAds(window.ytInitialPlayerResponse)
@@ -94,7 +84,6 @@ object JsScripts {
                 });
             } catch (e) {}
 
-            // 2b. Intercept fetch() calls to /youtubei/v1/player and /youtubei/v1/next
             if (typeof window.fetch === 'function') {
                 var origFetch = window.fetch;
                 window.fetch = function(input, init) {
@@ -127,7 +116,6 @@ object JsScripts {
                 };
             }
 
-            // 2c. Intercept XMLHttpRequest fallback for /youtubei/v1/player and /youtubei/v1/next
             if (typeof window.XMLHttpRequest === 'function') {
                 var origOpen = XMLHttpRequest.prototype.open;
                 var responseTextDesc = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'responseText');
@@ -179,13 +167,6 @@ object JsScripts {
         })();
     """.trimIndent()
 
-    /**
-     * Injected on page load ONLY on music.youtube.com / youtube.com:
-     *  - Layer 3 Ad Blocker: Cosmetic CSS hiding + MutationObserver auto-mute/skip fallback
-     *  - Anti-idle ("Still listening?") auto-dismissal
-     *  - Lock-screen / Bluetooth remote control bridge
-     *  - Metadata sync to Android Foreground Service (suppressed during ads)
-     */
     val RUNTIME_AND_COSMETIC_SCRIPT: String = """
         (function() {
             var host = (location && location.hostname ? location.hostname : '').toLowerCase();
@@ -193,7 +174,6 @@ object JsScripts {
             if (window.__ytmBgRuntimeInstalled) return;
             window.__ytmBgRuntimeInstalled = true;
 
-            // --- 1. Layer 3a: Cosmetic CSS Hiding (Banners, Overlays, Premium Promos) ---
             function injectCosmeticCss() {
                 try {
                     if (document.getElementById('ytm-bg-adblock-css')) return;
@@ -223,7 +203,6 @@ object JsScripts {
             }
             injectCosmeticCss();
 
-            // --- 2. Layer 3b: Playback Fallback (Auto-Mute + Instant Seek + Auto-Skip) ---
             var adMuteActive = false;
             var wasMutedBeforeAd = false;
 
@@ -300,7 +279,6 @@ object JsScripts {
             }
             setInterval(handleFallbackAd, 400);
 
-            // --- 3. Prevent "Still listening?" Idle Timeout ---
             setInterval(function() {
                 try {
                     window._lact = Date.now();
@@ -311,7 +289,6 @@ object JsScripts {
                 } catch (e) {}
             }, 45000);
 
-            // --- 4. Remote Control Bridge (Lock-screen & Bluetooth) ---
             window.__ytmBgControl = function(action) {
                 try {
                     var video = document.querySelector('video');
@@ -344,12 +321,10 @@ object JsScripts {
                 } catch (e) {}
             };
 
-            // --- 5. Sync Playback State & Track Metadata (Ignores Ad Metadata) ---
             var lastState = '';
             function syncPlaybackState() {
                 try {
                     if (!window.AndroidBridge || !window.AndroidBridge.onPlaybackStateChanged) return;
-                    // Never flash ad titles onto the Android lock screen
                     if (isAdPlaying()) return;
 
                     var video = document.querySelector('video');

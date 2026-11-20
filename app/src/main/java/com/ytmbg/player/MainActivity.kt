@@ -19,6 +19,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -33,7 +34,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val YTM_HOME_URL = "https://music.youtube.com"
-        private const val STUDIO_MOGLI_URL = "https://studiomogli.com"
+        private const val STUDIO_MOGLI_REFER_URL = "https://studiomogli.com/refer-and-earn"
+        private const val STUDIO_MOGLI_HOME_URL = "https://studiomogli.com"
 
         private val DOCUMENT_START_ORIGINS = setOf(
             "https://music.youtube.com",
@@ -64,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { /* Service runs regardless; permission enables lock-screen controls on Android 13+ */ }
+    ) { }
 
     private val loginLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -93,19 +95,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTopBar() {
-        val btnSignIn: TextView = findViewById(R.id.btnTopSignIn)
+        val topHeaderBar: LinearLayout = findViewById(R.id.topHeaderBar)
         val btnCredits: TextView = findViewById(R.id.btnStudioMogliCredits)
-        val brandTitle: TextView = findViewById(R.id.txtBrandHeader)
 
-        btnSignIn.setOnClickListener {
-            launchIsolatedGoogleSignIn(LoginActivity.DEFAULT_GOOGLE_LOGIN_URL)
-        }
-
-        btnCredits.setOnClickListener {
+        topHeaderBar.setOnClickListener {
             showStudioMogliCreditsDialog()
         }
 
-        brandTitle.setOnClickListener {
+        btnCredits.setOnClickListener {
             showStudioMogliCreditsDialog()
         }
     }
@@ -125,17 +122,17 @@ class MainActivity : AppCompatActivity() {
 
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
+        val btnReferEarn: Button = dialogView.findViewById(R.id.btnReferAndEarn)
         val btnVisitSite: Button = dialogView.findViewById(R.id.btnVisitStudioMogli)
-        val btnSupportTeam: Button = dialogView.findViewById(R.id.btnSupportDevTeam)
         val btnClose: TextView = dialogView.findViewById(R.id.btnCloseCredits)
 
-        btnVisitSite.setOnClickListener {
-            openExternalBrowser(STUDIO_MOGLI_URL)
+        btnReferEarn.setOnClickListener {
+            openExternalBrowser(STUDIO_MOGLI_REFER_URL)
             dialog.dismiss()
         }
 
-        btnSupportTeam.setOnClickListener {
-            openExternalBrowser(STUDIO_MOGLI_URL)
+        btnVisitSite.setOnClickListener {
+            openExternalBrowser(STUDIO_MOGLI_HOME_URL)
             dialog.dismiss()
         }
 
@@ -151,7 +148,7 @@ class MainActivity : AppCompatActivity() {
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(browserIntent)
         } catch (e: Exception) {
-            Toast.makeText(this, "Visit studiomogli.com", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Visit studiomogli.com/refer-and-earn", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -194,7 +191,6 @@ class MainActivity : AppCompatActivity() {
             userAgentString = buildMatchingDesktopChromeUa()
         }
 
-        // Layer 2: Register document_start script ONLY on YouTube origins (never on accounts.google.com)
         if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
             WebViewCompat.addDocumentStartJavaScript(
                 webView,
@@ -207,7 +203,6 @@ class MainActivity : AppCompatActivity() {
         webView.webChromeClient = WebChromeClient()
 
         webView.webViewClient = object : WebViewClient() {
-            // Layer 1: Network-level ad & tracker interception
             override fun shouldInterceptRequest(
                 view: WebView?,
                 request: WebResourceRequest?
@@ -249,13 +244,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleNavigation(uri: Uri): Boolean {
         val scheme = uri.scheme?.lowercase() ?: return true
-        // Block deep links that try to kick out to Play Store or native YouTube Music app
         if (scheme != "https" && scheme != "http") {
             return true
         }
         val host = uri.host?.lowercase() ?: return true
 
-        // Route all Google Sign-In flows into the clean, isolated LoginActivity
         if (AUTH_HOSTS.any { host == it || host.endsWith(".$it") }) {
             launchIsolatedGoogleSignIn(uri.toString())
             return true
@@ -264,7 +257,6 @@ class MainActivity : AppCompatActivity() {
         val isAllowed = ALLOWED_HOST_SUFFIXES.any { suffix ->
             host == suffix || host.endsWith(".$suffix")
         }
-        // Return false to load inside WebView; return true to block non-YouTube Music sites
         return !isAllowed
     }
 
@@ -296,7 +288,6 @@ class MainActivity : AppCompatActivity() {
                 if (webView.canGoBack()) {
                     webView.goBack()
                 } else {
-                    // Minimize instead of closing so background audio keeps playing
                     moveTaskToBack(true)
                 }
             }
@@ -321,8 +312,6 @@ class MainActivity : AppCompatActivity() {
         webView.onResume()
         webView.resumeTimers()
     }
-
-    // Intentionally omit webView.onPause() and webView.pauseTimers() so screen-off playback continues
 
     override fun onDestroy() {
         WebViewBridge.controlHandler = null
